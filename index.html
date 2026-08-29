@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز قيادة الحشود</title>
+<style>
+  :root{
+    --bg:#0b1020;--panel:#121a2e;--panel2:#17213a;--line:#263454;
+    --text:#f5f7fb;--muted:#9eabc2;--accent:#d7b66f;--good:#35c984;
+    --warn:#f0b34b;--danger:#ef6464;--blue:#5b8def;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#090e1b,#0d1425);color:var(--text);
+       font-family:"Segoe UI",Tahoma,Arial,sans-serif;min-height:100vh}
+  button,input,select{font:inherit}
+  .app{max-width:1280px;margin:auto;padding:18px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+          padding:16px 18px;background:rgba(18,26,46,.96);border:1px solid var(--line);
+          border-radius:18px;position:sticky;top:8px;z-index:10}
+  .brand h1{margin:0;font-size:22px}.brand p{margin:4px 0 0;color:var(--muted);font-size:13px}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 13px;
+       border-radius:12px;cursor:pointer;min-height:42px}
+  .btn:hover{filter:brightness(1.08)} .btn.primary{background:var(--accent);color:#15100a;border-color:transparent;font-weight:800}
+  .btn.good{background:var(--good);color:#07130d;border-color:transparent;font-weight:800}
+  .btn.danger{background:#3a1d27;color:#ffc9c9;border-color:#6a2c3c}
+  .btn.ghost{background:transparent}.btn.active{outline:2px solid var(--accent)}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:16px;margin-top:16px}
+  .panel{background:rgba(18,26,46,.96);border:1px solid var(--line);border-radius:18px;padding:16px}
+  .panel h2{margin:0 0 14px;font-size:17px}.muted{color:var(--muted)}
+  .countdown{text-align:center;padding:22px 12px;background:linear-gradient(145deg,#17213a,#10182a);
+             border:1px solid var(--line);border-radius:18px}
+  .timer{font-size:64px;font-weight:900;letter-spacing:2px;font-variant-numeric:tabular-nums;direction:ltr}
+  .timer.urgent{color:#ffdb7c}.timer.go{color:#65e7a7}
+  .timer.player-hit{color:#ff4d4d !important;text-shadow:0 0 18px rgba(255,77,77,.35)}
+  .status{font-size:15px;color:var(--muted);margin-top:6px;min-height:22px}
+  .player-due{min-height:34px;margin-top:8px;font-size:22px;font-weight:900;color:#ff6b6b}
+  .player-due small{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:3px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .field{margin:10px 0}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  input,select{width:100%;background:#0d1425;color:var(--text);border:1px solid var(--line);
+               border-radius:11px;padding:11px 12px;min-height:44px}
+  .sound-box{margin-top:14px;padding:12px;background:#0e1629;border:1px solid var(--line);border-radius:14px}
+  .sound-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .sound-row select{width:auto;min-width:130px;flex:1}
+  .switch{display:flex;align-items:center;gap:8px;font-size:14px}
+  .switch input{width:18px;height:18px;min-height:0}
+  .rotation{margin-top:14px;padding:12px;border-radius:14px;border:1px solid var(--line);background:#0e1629}
+  .rotation-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rotation-info{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .metric{background:#121d33;border:1px solid var(--line);border-radius:11px;padding:9px;text-align:center}
+  .metric b{display:block;font-size:15px;margin-top:3px}
+  .teams-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .team{border:1px solid var(--line);border-radius:16px;background:#0e1629;overflow:hidden}
+  .team.current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+  .team-head{padding:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#131e34}
+  .team-title{display:flex;align-items:center;gap:8px;font-weight:800}
+  .badge{font-size:11px;padding:4px 7px;border-radius:999px;background:#22314f;color:#cdd7e8}
+  .badge.captain{background:#3b311d;color:#ffe4a0}
+  .team-actions{display:flex;gap:5px}.icon-btn{border:1px solid var(--line);background:#101a2e;color:#fff;border-radius:9px;
+                width:34px;height:34px;cursor:pointer}
+  .players{padding:8px}.player{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+           padding:9px;border-bottom:1px solid #1d2944}.player:last-child{border-bottom:none}
+  .player-name{min-width:0}.player-name b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .player-name small{color:var(--muted)}.ptime{font-variant-numeric:tabular-nums;color:#c9d5e8}
+  .empty{padding:22px;text-align:center;color:var(--muted)}
+  .form-row{display:grid;grid-template-columns:1.3fr .7fr 1fr auto;gap:8px;margin:10px 0 14px}
+  .form-row .btn{align-self:end}
+  .toast{position:fixed;left:18px;bottom:18px;background:#17213a;border:1px solid var(--line);
+         padding:12px 15px;border-radius:12px;display:none;z-index:20;max-width:320px}
+  .small{font-size:12px}
+  @media(max-width:900px){.grid{grid-template-columns:1fr}.topbar{position:static}.teams{grid-template-columns:1fr 1fr}}
+  @media(max-width:620px){.app{padding:10px}.teams{grid-template-columns:1fr}.timer{font-size:54px}
+    .form-row{grid-template-columns:1fr 1fr}.form-row .wide{grid-column:1/-1}.top-actions{width:100%}.top-actions .btn{flex:1}
+    .rotation-info{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
+
+  .player{grid-template-columns:minmax(0,1fr) 105px auto!important}
+  .player-edit-name input,.player-edit-time input,.team-add-player input{
+    width:100%;height:38px;border:1px solid #2b3a59;background:#0b1323;color:#fff;
+    border-radius:9px;padding:7px 9px;font:inherit;outline:none
+  }
+  .player-edit-name input:focus,.player-edit-time input:focus,.team-add-player input:focus{border-color:var(--accent)}
+  .player-edit-time{min-width:0}
+  .player-edit-time input{text-align:center;font-variant-numeric:tabular-nums}
+  .save-player-btn{border-color:#315b48;background:#123326}
+  .save-player-btn.dirty{border-color:#d3a62b;background:#49380d}
+  .team-add-player{display:grid;grid-template-columns:minmax(0,1fr) 105px auto;gap:8px;align-items:center;
+    padding:10px 9px;border-top:1px dashed #2b3a59}
+  .team-add-player button{min-width:44px;height:38px}
+  @media(max-width:620px){
+    .player,.team-add-player{grid-template-columns:minmax(0,1fr) 88px auto!important}
+  }
+
+  .team-collapse-btn{
+    width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid #2b3a59;background:#0b1323;color:#fff;border-radius:9px;
+    cursor:pointer;font-size:20px;line-height:1;font-weight:700
+  }
+  .team-collapse-btn:hover{border-color:var(--accent)}
+  .team.collapsed .team-body{display:none!important}
+
+  .team-gap-info{
+    margin:8px 9px 10px;padding:9px 10px;border:1px solid #263653;border-radius:10px;
+    background:#0a1220;font-size:13px;line-height:1.7
+  }
+  .team-gap-info .gap-title{font-weight:800;margin-bottom:3px}
+  .team-gap-info .gap-row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+  .team-gap-info .gap-row span:last-child{font-variant-numeric:tabular-nums;font-weight:800}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <h1 id="title">مركز قيادة الحشود</h1>
+      <p id="subtitle">إدارة الكتائب والتدوير والعد الصوتي</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="uiLangBtn">English</button>
+      <button class="btn" id="soundBtn">🔊 الصوت يعمل</button>
+      <button class="btn danger" id="resetBtn">إعادة ضبط</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <aside>
+      <section class="panel">
+        <h2 id="rallyHeading">عداد الحشد</h2>
+        <div class="countdown">
+          <div id="timer" class="timer">00:30</div>
+          <div id="timerStatus" class="status">جاهز للبدء</div>
+          <div id="playerDue" class="player-due" aria-live="polite"></div>
+        </div>
+
+        <div class="field">
+          <label id="rallyTeamLabel" for="rallyTeam">اختر الكتيبة</label>
+          <select id="rallyTeam"></select>
+        </div>
+
+        <div class="field">
+          <label id="durationLabel" for="duration">مدة العد بالثواني</label>
+          <input id="duration" type="number" min="5" max="3600" value="30">
+        </div>
+
+        <div class="controls">
+          <button class="btn good" id="startBtn">بدء</button>
+          <button class="btn" id="pauseBtn">إيقاف مؤقت</button>
+          <button class="btn" id="resumeBtn">استئناف</button>
+          <button class="btn danger" id="stopBtn">إيقاف</button>
+        </div>
+
+        <div class="sound-box">
+          <div class="sound-row">
+            <label class="switch">
+              <input type="checkbox" id="voiceEnabled" checked>
+              <span id="voiceEnabledLabel">العد الصوتي</span>
+            </label>
+            <select id="voiceLang">
+              <option value="ar-SA">العربية</option>
+              <option value="en-US">English</option>
+            </select>
+          </div>
+          <div class="field">
+            <label id="deviceVoiceLabel" for="deviceVoice">الصوت المستخدم</label>
+            <select id="deviceVoice">
+              <option value="">تلقائي - أفضل صوت متاح</option>
+            </select>
+          </div>
+          <div class="sound-row">
+            <button class="btn ghost" id="testVoiceBtn">اختبار الصوت</button>
+            <span class="muted small" id="voiceHint">يستخدم الأصوات المتوفرة في جهازك</span>
+          </div>
+        </div>
+
+        <div class="rotation" style="display:none!important" aria-hidden="true">
+          <h2 id="rotationHeading">التدوير التلقائي</h2>
+          <div class="rotation-row">
+            <div class="field">
+              <label id="roundDurationLabel">مدة كل كتيبة</label>
+              <input id="rotationDuration" type="number" min="5" max="3600" value="30">
+            </div>
+            <div class="field">
+              <label id="rotationModeLabel">النمط</label>
+              <select id="rotationMode">
+                <option value="loop">مستمر</option>
+                <option value="once">مرة واحدة</option>
+              </select>
+            </div>
+          </div>
+          <div class="controls">
+            <button class="btn primary" id="startRotationBtn">تشغيل التدوير</button>
+            <button class="btn danger" id="stopRotationBtn">إيقاف التدوير</button>
+          </div>
+          <div class="rotation-info">
+            <div class="metric"><span id="currentLabel">الحالي</span><b id="currentTeam">—</b></div>
+            <div class="metric"><span id="nextLabel">التالي</span><b id="nextTeam">—</b></div>
+            <div class="metric"><span id="roundLabel">الجولة</span><b id="roundNo">0</b></div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <main>
+      <section class="panel">
+        <div class="teams-head">
+          <div>
+            <h2 id="teamsHeading">الكتائب واللاعبون</h2>
+            <div class="muted small" id="teamsHint">رتّب اللاعبين حسب زمن الوصول وحدد قائد كل كتيبة.</div>
+          </div>
+          <button class="btn primary" id="addTeamBtn" style="display:none!important">+ كتيبة جديدة</button>
+        </div>
+
+        <div class="form-row" style="display:none!important" aria-hidden="true">
+          <div class="field wide">
+            <label id="playerNameLabel">اسم اللاعب</label>
+            <input id="playerName" maxlength="40" placeholder="مثال: Damian">
+          </div>
+          <div class="field">
+            <label id="playerTimeLabel">الوقت</label>
+            <input id="playerTime" type="number" min="1" max="999" value="30">
+          </div>
+          <div class="field">
+            <label id="playerTeamLabel">الكتيبة</label>
+            <select id="playerTeam"></select>
+          </div>
+          <button class="btn good" id="addPlayerBtn">إضافة</button>
+        </div>
+
+        <div id="teams" class="teams"></div>
+      </section>
+    </main>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const KEY='rally_command_center_v3_collapsed_5_6';
+  const defaultState={
+    uiLang:'ar', soundOn:true, voiceEnabled:true, voiceLang:'ar-SA',
+    duration:30, rotationDuration:30, rotationMode:'loop', rallyTeamId:1, collapsedTeams:[5,6],
+    teams:[
+      {id:1,name:'الكتيبة 1',captain:null,players:[
+        {id:101,name:'',time:''},{id:102,name:'',time:''},{id:103,name:'',time:''}
+      ]},
+      {id:2,name:'الكتيبة 2',captain:null,players:[
+        {id:201,name:'',time:''},{id:202,name:'',time:''},{id:203,name:'',time:''}
+      ]},
+      {id:3,name:'الكتيبة 3',captain:null,players:[
+        {id:301,name:'',time:''},{id:302,name:'',time:''},{id:303,name:'',time:''}
+      ]},
+      {id:4,name:'الكتيبة 4',captain:null,players:[
+        {id:401,name:'',time:''},{id:402,name:'',time:''},{id:403,name:'',time:''}
+      ]},
+      {id:5,name:'الكتيبة 5',captain:null,players:[
+        {id:501,name:'',time:''},{id:502,name:'',time:''},{id:503,name:'',time:''}
+      ]},
+      {id:6,name:'الكتيبة 6',captain:null,players:[
+        {id:601,name:'خالد',time:47},{id:602,name:'محمد',time:31},{id:603,name:'Damian',time:22}
+      ]}
+    ]
+  };
+  let state=load();
+  let remaining=state.duration, timerId=null, paused=false, running=false;
+  let rotationActive=false, rotationIndex=0, rotationRound=0, spokenSecond=null;
+
+  const $=id=>document.getElementById(id);
+  const teamsEl=$('teams'), timerEl=$('timer'), statusEl=$('timerStatus'), toast=$('toast');
+
+  const T={
+    ar:{
+      title:'مركز قيادة الحشود',subtitle:'إدارة الكتائب والتدوير والعد الصوتي',
+      soundOn:'🔊 الصوت يعمل',soundOff:'🔇 الصوت متوقف',reset:'إعادة ضبط',
+      rally:'عداد الحشد',rallyTeam:'اختر الكتيبة',ready:'جاهز للبدء',started:'الحشد بدأ الآن',paused:'متوقف مؤقتًا',stopped:'تم الإيقاف',
+      duration:'مدة العد بالثواني',start:'بدء',pause:'إيقاف مؤقت',resume:'استئناف',stop:'إيقاف',
+      voiceEnabled:'العد الصوتي',test:'اختبار الصوت',
+      deviceVoice:'الصوت المستخدم',autoVoice:'تلقائي - أفضل صوت متاح',
+      hint:'لا يتم تجاوز أي رقم؛ إذا تأخر النطق يتم إيقاف الرقم السابق ونطق الرقم الحالي',rotation:'التدوير التلقائي',roundDuration:'مدة كل كتيبة',
+      mode:'النمط',loop:'مستمر',once:'مرة واحدة',startRotation:'تشغيل التدوير',stopRotation:'إيقاف التدوير',
+      current:'الحالي',next:'التالي',round:'الجولة',teams:'الكتائب واللاعبون',
+      teamsHint:'رتّب اللاعبين حسب زمن الوصول وحدد قائد كل كتيبة.',newTeam:'+ كتيبة جديدة',
+      playerName:'اسم اللاعب',playerTime:'الوقت',playerTeam:'الكتيبة',add:'إضافة',
+      captain:'القائد',makeCaptain:'تعيين قائد',noPlayers:'لا يوجد لاعبون',delete:'حذف',team:'الكتيبة',
+      seconds:'ث',confirmReset:'هل تريد حذف جميع البيانات وإعادة البرنامج للوضع الافتراضي؟',
+      nameRequired:'اكتب اسم اللاعب أولًا',added:'تمت إضافة اللاعب',teamAdded:'تمت إضافة كتيبة جديدة',
+      teamDeleteConfirm:'حذف هذه الكتيبة وجميع لاعبيها؟',needTeams:'أضف كتيبة واحدة على الأقل',
+      voiceTest:'اختبار الصوت',go:'الآن',rallyFor:'الحشد للكتيبة',rotationDone:'اكتملت دورة التدوير',
+      playerNow:'وقت اللاعب',nextPlayer:'اللاعب القادم'
+    },
+    en:{
+      title:'Rally Command Center',subtitle:'Teams, rotation and bilingual voice countdown',
+      soundOn:'🔊 Sound On',soundOff:'🔇 Sound Off',reset:'Reset',
+      rally:'Rally Countdown',rallyTeam:'Select Team',ready:'Ready',started:'Rally starts now',paused:'Paused',stopped:'Stopped',
+      duration:'Countdown duration (seconds)',start:'Start',pause:'Pause',resume:'Resume',stop:'Stop',
+      voiceEnabled:'Voice countdown',test:'Test Voice',
+      deviceVoice:'Voice',autoVoice:'Automatic - best available voice',
+      hint:'Numbers are never skipped; stale speech stops before the current number',rotation:'Automatic Rotation',roundDuration:'Team duration',
+      mode:'Mode',loop:'Loop',once:'Once',startRotation:'Start Rotation',stopRotation:'Stop Rotation',
+      current:'Current',next:'Next',round:'Round',teams:'Teams & Players',
+      teamsHint:'Players are sorted by arrival time. Assign one captain per team.',newTeam:'+ New Team',
+      playerName:'Player name',playerTime:'Time',playerTeam:'Team',add:'Add',
+      captain:'Captain',makeCaptain:'Make Captain',noPlayers:'No players',delete:'Delete',team:'Team',
+      seconds:'s',confirmReset:'Delete all data and restore defaults?',
+      nameRequired:'Enter the player name first',added:'Player added',teamAdded:'New team added',
+      teamDeleteConfirm:'Delete this team and all its players?',needTeams:'Add at least one team',
+      voiceTest:'Voice test',go:'Go',rallyFor:'Rally for',rotationDone:'Rotation completed',
+      playerNow:'Player time',nextPlayer:'Next player'
+    }
+  };
+
+  function load(){
+    try{
+      const v=JSON.parse(localStorage.getItem(KEY));
+      const data=v?Object.assign({},defaultState,v):structuredClone(defaultState);
+      if(!Array.isArray(data.teams)) data.teams=[];
+      while(data.teams.length<6){
+        const n=data.teams.length+1;
+        data.teams.push({id:Date.now()+n,name:'الكتيبة '+n,captain:null,players:[]});
+      }
+      if(data.teams.length>6) data.teams=data.teams.slice(0,6);
+      return data;
+    }catch(e){
+      const data=structuredClone(defaultState);
+      if(!Array.isArray(data.teams)) data.teams=[];
+      while(data.teams.length<6){
+        const n=data.teams.length+1;
+        data.teams.push({id:Date.now()+n,name:'الكتيبة '+n,captain:null,players:[]});
+      }
+      if(data.teams.length>6) data.teams=data.teams.slice(0,6);
+      return data;
+    }
+  }
+  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+  function tr(k){return T[state.uiLang][k]||k}
+  function showToast(msg){toast.textContent=msg;toast.style.display='block';clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.style.display='none',2200)}
+  function fmt(sec){sec=Math.max(0,Math.round(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+
+  function applyLang(){
+    document.documentElement.lang=state.uiLang==='ar'?'ar':'en';
+    document.documentElement.dir=state.uiLang==='ar'?'rtl':'ltr';
+    $('title').textContent=tr('title'); $('subtitle').textContent=tr('subtitle');
+    $('uiLangBtn').textContent=state.uiLang==='ar'?'English':'العربية';
+    $('soundBtn').textContent=state.soundOn?tr('soundOn'):tr('soundOff'); $('resetBtn').textContent=tr('reset');
+    $('rallyHeading').textContent=tr('rally'); $('rallyTeamLabel').textContent=tr('rallyTeam'); $('durationLabel').textContent=tr('duration');
+    $('startBtn').textContent=tr('start'); $('pauseBtn').textContent=tr('pause'); $('resumeBtn').textContent=tr('resume'); $('stopBtn').textContent=tr('stop');
+    $('voiceEnabledLabel').textContent=tr('voiceEnabled');
+    $('testVoiceBtn').textContent=tr('test'); $('voiceHint').textContent=tr('hint');
+    $('deviceVoiceLabel').textContent=tr('deviceVoice');
+    const autoOpt=$('deviceVoice').querySelector('option[value=""]'); if(autoOpt) autoOpt.textContent=tr('autoVoice');
+    $('rotationHeading').textContent=tr('rotation');
+    $('roundDurationLabel').textContent=tr('roundDuration'); $('rotationModeLabel').textContent=tr('mode');
+    $('rotationMode').options[0].text=tr('loop'); $('rotationMode').options[1].text=tr('once');
+    $('startRotationBtn').textContent=tr('startRotation'); $('stopRotationBtn').textContent=tr('stopRotation');
+    $('currentLabel').textContent=tr('current'); $('nextLabel').textContent=tr('next'); $('roundLabel').textContent=tr('round');
+    $('teamsHeading').textContent=tr('teams'); $('teamsHint').textContent=tr('teamsHint'); $('addTeamBtn').textContent=tr('newTeam');
+    $('playerNameLabel').textContent=tr('playerName'); $('playerTimeLabel').textContent=tr('playerTime'); $('playerTeamLabel').textContent=tr('playerTeam'); $('addPlayerBtn').textContent=tr('add');
+    if(!running) statusEl.textContent=tr('ready');
+    renderTeams();
+    if(typeof populateVoiceList==='function') populateVoiceList();
+  }
+
+  function renderRallyTeamSelect(){
+    const s=$('rallyTeam');
+    const previous=String(state.rallyTeamId||'');
+    s.innerHTML='';
+    state.teams.forEach((team,i)=>{
+      const o=document.createElement('option');
+      o.value=team.id;
+      o.textContent=displayTeamName(team,i);
+      s.appendChild(o);
+    });
+    const valid=[...s.options].some(o=>o.value===previous);
+    if(valid) s.value=previous;
+    else if(s.options.length){
+      s.selectedIndex=0;
+      state.rallyTeamId=Number(s.value);
+      save();
+    }
+  }
+
+  function renderTeamSelect(){
+    const s=$('playerTeam'); const old=s.value; s.innerHTML='';
+    state.teams.forEach((team,i)=>{
+      const o=document.createElement('option');o.value=team.id;o.textContent=displayTeamName(team,i);s.appendChild(o);
+    });
+    if([...s.options].some(o=>o.value===old))s.value=old;
+  }
+  function displayTeamName(team,index){
+    const generic=/^(الكتيبة|Team)\s*\d+$/i.test(team.name||'');
+    return generic?(state.uiLang==='ar'?'الكتيبة ':'Team ')+(index+1):team.name;
+  }
+  function renderTeams(){
+    renderRallyTeamSelect();
+    renderTeamSelect(); teamsEl.innerHTML='';
+    state.teams.forEach((team,index)=>{
+      team.players.sort((a,b)=>a.time-b.time);
+      const card=document.createElement('div');card.className='team'+(rotationActive&&index===rotationIndex?' current':'');
+      const head=document.createElement('div');head.className='team-head';
+      const ttl=document.createElement('div');ttl.className='team-title';ttl.textContent=displayTeamName(team,index);
+      const badge=document.createElement('span');badge.className='badge';badge.textContent=team.players.length+' '+(state.uiLang==='ar'?'لاعب':'players');ttl.appendChild(badge);
+      const acts=document.createElement('div');acts.className='team-actions';
+
+      const isCollapsed=Array.isArray(state.collapsedTeams)&&state.collapsedTeams.includes(team.id);
+      if(isCollapsed) card.classList.add('collapsed');
+
+      const collapseBtn=document.createElement('button');
+      collapseBtn.type='button';
+      collapseBtn.className='team-collapse-btn';
+      collapseBtn.title=isCollapsed
+        ? (state.uiLang==='ar'?'إظهار اللاعبين':'Show players')
+        : (state.uiLang==='ar'?'إخفاء اللاعبين':'Hide players');
+      collapseBtn.textContent=isCollapsed?'＋':'−';
+      collapseBtn.addEventListener('click',()=>{
+        if(!Array.isArray(state.collapsedTeams)) state.collapsedTeams=[];
+        const exists=state.collapsedTeams.includes(team.id);
+        state.collapsedTeams=exists
+          ? state.collapsedTeams.filter(id=>id!==team.id)
+          : [...state.collapsedTeams,team.id];
+        save();
+        renderTeams();
+      });
+
+      acts.appendChild(collapseBtn);
+      head.append(ttl,acts);card.appendChild(head);
+      const body=document.createElement('div');body.className='players team-body';
+      if(!team.players.length){const e=document.createElement('div');e.className='empty';e.textContent=tr('noPlayers');body.appendChild(e)}
+      team.players.forEach(p=>{
+        const row=document.createElement('div');row.className='player';
+
+        const nameWrap=document.createElement('div');nameWrap.className='player-edit-name';
+        const nameInput=document.createElement('input');
+        nameInput.type='text';nameInput.maxLength=40;nameInput.value=p.name;
+
+        const timeWrap=document.createElement('div');timeWrap.className='player-edit-time';
+        const timeInput=document.createElement('input');
+        timeInput.type='number';timeInput.min='1';timeInput.max='999';timeInput.value=(p.time===''?'':p.time);
+        timeWrap.appendChild(timeInput);
+
+        const actions=document.createElement('div');actions.className='team-actions';
+
+        const saveBtn=document.createElement('button');
+        saveBtn.className='icon-btn save-player-btn';
+        saveBtn.type='button';
+        saveBtn.title=state.uiLang==='ar'?'حفظ':'Save';
+        saveBtn.textContent='💾';
+
+        const markDirty=()=>{
+          const nv=nameInput.value.trim();
+          const tv=Number(timeInput.value);
+          saveBtn.classList.toggle('dirty',nv!==String(p.name) || tv!==Number(p.time));
+        };
+        nameInput.addEventListener('input',markDirty);
+        timeInput.addEventListener('input',markDirty);
+
+        const commitEdit=()=>{
+          const nv=nameInput.value.trim();
+          const tv=Math.round(Number(timeInput.value));
+          if(!nv){showToast(state.uiLang==='ar'?'اكتب اسم اللاعب':'Enter player name');return;}
+          if(!Number.isFinite(tv)||tv<1||tv>999){showToast(state.uiLang==='ar'?'أدخل وقتًا صحيحًا':'Enter a valid time');return;}
+          p.name=nv;p.time=tv;
+          team.players.sort((a,b)=>Number(b.time)-Number(a.time));
+          save();
+          renderTeams();
+          renderRallyTeamSelect();
+          if(Number(state.rallyTeamId)===Number(team.id) && !running && !paused) syncDurationToSelectedTeam();
+          updatePlayerCue(remaining);
+          showToast(state.uiLang==='ar'?'تم الحفظ':'Saved');
+        };
+        saveBtn.addEventListener('click',commitEdit);
+
+        const cap=document.createElement('button');cap.className='icon-btn';cap.type='button';cap.title=tr('makeCaptain');cap.textContent=team.captain===p.id?'★':'☆';
+        cap.addEventListener('click',()=>{team.captain=p.id;save();renderTeams()});
+
+        const x=document.createElement('button');x.className='icon-btn';x.type='button';x.title=tr('delete');x.textContent='×';
+        x.addEventListener('click',()=>{team.players=team.players.filter(q=>q.id!==p.id);if(team.captain===p.id)team.captain=null;save();renderTeams();renderRallyTeamSelect();});
+
+        nameWrap.appendChild(nameInput);
+        actions.append(saveBtn,cap,x);
+        row.append(nameWrap,timeWrap,actions);
+        body.appendChild(row);
+      });
+
+      const addRow=document.createElement('div');addRow.className='team-add-player';
+      const addName=document.createElement('input');addName.type='text';addName.maxLength=40;addName.placeholder=state.uiLang==='ar'?'اسم اللاعب الجديد':'New player';
+      const addTime=document.createElement('input');addTime.type='number';addTime.min='1';addTime.max='999';addTime.placeholder=state.uiLang==='ar'?'الوقت':'Time';
+      const addBtn=document.createElement('button');addBtn.type='button';addBtn.className='btn primary';addBtn.textContent='+';
+
+      const addPlayerToTeam=()=>{
+        const nv=addName.value.trim();
+        const tv=Math.round(Number(addTime.value));
+        if(!nv){showToast(state.uiLang==='ar'?'اكتب اسم اللاعب':'Enter player name');return;}
+        if(!Number.isFinite(tv)||tv<1||tv>999){showToast(state.uiLang==='ar'?'أدخل وقتًا صحيحًا':'Enter a valid time');return;}
+        team.players.push({id:Date.now()+Math.floor(Math.random()*10000),name:nv,time:tv});
+        team.players.sort((a,b)=>Number(b.time)-Number(a.time));
+        save();
+        renderTeams();
+        renderRallyTeamSelect();
+        if(Number(state.rallyTeamId)===Number(team.id) && !running && !paused) syncDurationToSelectedTeam();
+        showToast(state.uiLang==='ar'?'تمت إضافة اللاعب':'Player added');
+      };
+      addBtn.addEventListener('click',addPlayerToTeam);
+      addName.addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerToTeam()});
+      addTime.addEventListener('keydown',e=>{if(e.key==='Enter')addPlayerToTeam()});
+      addRow.append(addName,addTime,addBtn);
+      body.appendChild(addRow);
+
+      // حساب فرق وقت الإرسال حتى يصل جميع لاعبي الكتيبة في نفس اللحظة.
+      const gapInfo=document.createElement('div');
+      gapInfo.className='team-gap-info';
+
+      const validPlayers=team.players
+        .map(p=>({name:String(p.name||'').trim(),time:Number(p.time)}))
+        .filter(p=>p.name && Number.isFinite(p.time) && p.time>0)
+        .sort((a,b)=>b.time-a.time);
+
+      if(validPlayers.length>=2){
+        const title=document.createElement('div');
+        title.className='gap-title';
+        title.textContent=state.uiLang==='ar'?'فرق الإرسال للوصول معًا':'Send gaps to arrive together';
+        gapInfo.appendChild(title);
+
+        validPlayers.forEach((p,i)=>{
+          const row=document.createElement('div');
+          row.className='gap-row';
+          const who=document.createElement('span');
+          const when=document.createElement('span');
+
+          if(i===0){
+            who.textContent=p.name;
+            when.textContent=state.uiLang==='ar'?'يرسل أولًا':'Send first';
+          }else{
+            const delay=validPlayers[0].time-p.time;
+            who.textContent=p.name;
+            when.textContent=state.uiLang==='ar'
+              ? `بعد ${delay} ث`
+              : `after ${delay}s`;
+          }
+          row.append(who,when);
+          gapInfo.appendChild(row);
+        });
+      }else{
+        const title=document.createElement('div');
+        title.className='gap-title';
+        title.textContent=state.uiLang==='ar'
+          ? 'أضف لاعبين أو أكثر لحساب فرق الإرسال'
+          : 'Add 2+ players to calculate send gaps';
+        gapInfo.appendChild(title);
+      }
+
+      body.appendChild(gapInfo);
+      card.appendChild(body);teamsEl.appendChild(card);
+    });
+    updateRotationInfo();
+  }
+
+  function addTeam(){
+    if(state.teams.length>=6){showToast(state.uiLang==='ar'?'عدد الكتائب ثابت: 6':'Maximum 6 teams');return;}
+    const id=Date.now();state.teams.push({id,name:'Team '+(state.teams.length+1),captain:null,players:[]});
+    save();renderTeams();showToast(tr('teamAdded'));
+  }
+  function deleteTeam(id){
+    if(!confirm(tr('teamDeleteConfirm')))return;
+    state.teams=state.teams.filter(t=>t.id!==id); if(rotationIndex>=state.teams.length)rotationIndex=0;
+    save();renderTeams();
+  }
+  function addPlayer(){
+    const name=$('playerName').value.trim(); if(!name){showToast(tr('nameRequired'));return}
+    const time=Math.min(999,Math.max(1,Number($('playerTime').value)||30));
+    const id=Number($('playerTeam').value); const team=state.teams.find(t=>t.id===id); if(!team)return;
+    team.players.push({id:Date.now(),name,time}); $('playerName').value='';save();renderTeams();showToast(tr('added'));
+  }
+
+  let availableVoices=[];
+  let selectedVoiceName=state.selectedVoiceName||'';
+
+  function getVoices(){
+    return ('speechSynthesis' in window) ? speechSynthesis.getVoices() : [];
+  }
+
+  function scoreVoice(v, lang){
+    const vl=(v.lang||'').toLowerCase(), target=lang.toLowerCase();
+    let s=0;
+    if(vl===target)s+=100;
+    if(vl.startsWith(target.slice(0,2)))s+=60;
+    if(v.localService)s+=10;
+    const name=(v.name||'').toLowerCase();
+    if(/natural|enhanced|premium|microsoft|google/.test(name))s+=18;
+    return s;
+  }
+
+  function populateVoiceList(){
+    if(!('speechSynthesis' in window))return;
+    availableVoices=getVoices();
+    const sel=$('deviceVoice'), current=selectedVoiceName;
+    sel.innerHTML='';
+
+    const isArabic=state.voiceLang.startsWith('ar');
+    let allowed=[];
+
+    if(isArabic){
+      // عند اختيار العربية: اعرض الأصوات العربية فقط.
+      allowed=availableVoices.filter(v=>(v.lang||'').toLowerCase().startsWith('ar'));
+    }else{
+      // عند اختيار الإنجليزية: اعرض David و Mark فقط.
+      allowed=availableVoices.filter(v=>{
+        const name=(v.name||'').toLowerCase();
+        return name.includes('david') || name.includes('mark');
+      });
+    }
+
+    if(!allowed.length){
+      const o=document.createElement('option');
+      o.value='';
+      o.textContent=isArabic
+        ? (state.uiLang==='ar'?'لا توجد أصوات عربية مثبتة على الجهاز':'No Arabic voices installed')
+        : (state.uiLang==='ar'?'David و Mark غير متوفرين على الجهاز':'David and Mark are not installed');
+      sel.appendChild(o);
+      selectedVoiceName='';
+      state.selectedVoiceName='';
+      save();
+      return;
+    }
+
+    allowed
+      .sort((x,y)=>scoreVoice(y,state.voiceLang)-scoreVoice(x,state.voiceLang))
+      .forEach(v=>{
+        const o=document.createElement('option');
+        o.value=v.name;
+        o.textContent=`${v.name} (${v.lang})`;
+        sel.appendChild(o);
+      });
+
+    if([...sel.options].some(o=>o.value===current)){
+      sel.value=current;
+    }else{
+      selectedVoiceName=allowed[0].name;
+      state.selectedVoiceName=allowed[0].name;
+      sel.value=allowed[0].name;
+      save();
+    }
+  }
+
+  function chooseVoice(lang){
+    const voices=availableVoices.length?availableVoices:getVoices();
+    const isArabic=String(lang||'').toLowerCase().startsWith('ar');
+
+    let allowed=[];
+    if(isArabic){
+      allowed=voices.filter(v=>(v.lang||'').toLowerCase().startsWith('ar'));
+    }else{
+      allowed=voices.filter(v=>{
+        const name=(v.name||'').toLowerCase();
+        return name.includes('david') || name.includes('mark');
+      });
+    }
+
+    if(selectedVoiceName){
+      const v=allowed.find(x=>x.name===selectedVoiceName);
+      if(v)return v;
+    }
+
+    return allowed
+      .sort((x,y)=>scoreVoice(y,lang)-scoreVoice(x,lang))[0] || null;
+  }
+
+  let speechToken=0;
+  function speak(text,lang=state.voiceLang,rate=1.68){
+    if(!state.soundOn||!state.voiceEnabled||!('speechSynthesis' in window))return;
+
+    // لا نتخطى الرقم التالي: الرقم الأحدث يلغي الرقم القديم ويبدأ فورًا.
+    const myToken=++speechToken;
+    speechSynthesis.cancel();
+
+    setTimeout(()=>{
+      if(myToken!==speechToken || !state.soundOn || !state.voiceEnabled) return;
+      const u=new SpeechSynthesisUtterance(String(text));
+      u.lang=lang;
+      u.rate=rate;
+      u.pitch=1.03;
+      u.volume=1;
+      const v=chooseVoice(lang);
+      if(v)u.voice=v;
+      speechSynthesis.speak(u);
+    },30);
+  }
+
+  function speakSecond(sec){
+    if(sec<0)return;
+    const ar={0:'الآن',1:'واحد',2:'اثنين',3:'ثلاثة',4:'أربعة',5:'خمسة',6:'ستة',7:'سبعة',8:'ثمانية',9:'تسعة',10:'عشرة',
+      11:'أحد عشر',12:'اثنا عشر',13:'ثلاثة عشر',14:'أربعة عشر',15:'خمسة عشر',16:'ستة عشر',17:'سبعة عشر',18:'ثمانية عشر',19:'تسعة عشر',20:'عشرين'};
+    speak(state.voiceLang.startsWith('ar')?(ar[sec]||String(sec)):(sec===0?'Go':String(sec)),state.voiceLang,1.72);
+  }
+
+  function getActiveTeam(){
+    if(rotationActive && state.teams[rotationIndex]) return state.teams[rotationIndex];
+    const selectedId=Number(state.rallyTeamId || $('rallyTeam').value);
+    return state.teams.find(t=>t.id===selectedId) || state.teams[0] || null;
+  }
+
+  function getAutoStartSecond(){
+    const team=getActiveTeam();
+    if(!team || !Array.isArray(team.players) || !team.players.length) return null;
+
+    const times=team.players
+      .map(p=>Number(p.time))
+      .filter(v=>Number.isFinite(v) && v>=0);
+
+    if(!times.length) return null;
+
+    // أول لاعب هو صاحب أعلى وقت، ويبدأ العداد قبله بـ 7 ثوانٍ.
+    return Math.min(3600, Math.max(...times) + 7);
+  }
+
+  function syncDurationToSelectedTeam(){
+    const autoStart=getAutoStartSecond();
+    if(autoStart===null) return;
+    state.duration=autoStart;
+    $('duration').value=autoStart;
+    if(!running && !paused){
+      remaining=autoStart;
+      timerEl.textContent=fmt(remaining);
+      updatePlayerCue(remaining);
+    }
+    save();
+  }
+
+  function getAutoStopSecond(){
+    const team=getActiveTeam();
+    if(!team || !Array.isArray(team.players) || !team.players.length) return 0;
+
+    const times=team.players
+      .map(p=>Number(p.time))
+      .filter(v=>Number.isFinite(v) && v>=0);
+
+    if(!times.length) return 0;
+
+    // آخر لاعب هو صاحب أقل وقت. يتوقف العداد بعد وقته بثانيتين.
+    const lastPlayerTime=Math.min(...times);
+    return Math.max(0,lastPlayerTime-2);
+  }
+
+  function updatePlayerCue(sec){
+    const box=$('playerDue');
+    const team=getActiveTeam();
+
+    timerEl.classList.remove('player-hit');
+    box.innerHTML='';
+
+    if(!team || !Array.isArray(team.players) || !team.players.length) return;
+
+    // اللاعب الذي يطابق وقته الرقم الحالي بالضبط
+    const hit=team.players.find(p=>Number(p.time)===Number(sec));
+    if(hit){
+      timerEl.classList.add('player-hit');
+      const teamIndex=state.teams.indexOf(team);
+      box.innerHTML=`${tr('playerNow')}: ${escapeHtml(hit.name)} — ${hit.time} ${tr('seconds')}
+        <small>${displayTeamName(team,teamIndex)}</small>`;
+      return;
+    }
+
+    // عرض أقرب لاعب قادم: زمنه أقل من الرقم الحالي وهو الأكبر بينهم
+    const upcoming=team.players
+      .filter(p=>Number(p.time)<Number(sec))
+      .sort((a,b)=>Number(b.time)-Number(a.time))[0];
+
+    if(upcoming){
+      box.innerHTML=`<span style="color:var(--text)">${tr('nextPlayer')}: ${escapeHtml(upcoming.name)} — ${upcoming.time} ${tr('seconds')}</span>`;
+    }
+  }
+
+  function escapeHtml(v){
+    return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  let deadline=0;
+
+  function tick(){
+    if(running && !paused && deadline){
+      remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+    }
+    timerEl.textContent=fmt(remaining);
+    timerEl.classList.toggle('urgent',remaining<=10&&remaining>0);
+    timerEl.classList.toggle('go',remaining===0);
+    updatePlayerCue(remaining);
+
+    if(remaining<=state.duration && remaining>=0 && spokenSecond!==remaining){
+      spokenSecond=remaining;
+      speakSecond(remaining);
+    }
+
+    const stopAt=getAutoStopSecond();
+    if(remaining<=stopAt){
+      remaining=stopAt;
+      timerEl.textContent=fmt(remaining);
+      clearInterval(timerId);timerId=null;running=false;deadline=0;
+
+      const team=getActiveTeam();
+      const idx=team?state.teams.indexOf(team):-1;
+      statusEl.textContent=team
+        ? (state.uiLang==='ar'
+            ? `انتهى عد ${displayTeamName(team,idx)} عند ${remaining} ثانية`
+            : `${displayTeamName(team,idx)} countdown ended at ${remaining}s`)
+        : tr('started');
+
+      // نترك نطق آخر رقم يكتمل، لكن لا يستمر العد بعده.
+      if(rotationActive)setTimeout(nextRotation,250);
+    }
+  }
+
+  function startTimer(seconds){
+    clearInterval(timerId);
+    if('speechSynthesis'in window){ speechSynthesis.cancel(); speechToken++; }
+
+    remaining=Math.max(1,Math.min(3600,Number(seconds)||30));
+    running=true;paused=false;spokenSecond=null;
+    deadline=Date.now()+(remaining*1000);
+
+    const activeTeam=getActiveTeam();
+    const activeIndex=activeTeam?state.teams.indexOf(activeTeam):-1;
+    statusEl.textContent=activeTeam
+      ? tr('rallyFor')+' '+displayTeamName(activeTeam,activeIndex)
+      : (state.uiLang==='ar'?'بدأ العد':'Countdown started');
+
+    // تحديث فوري لحظة الضغط، ثم تحديث سريع للحفاظ على دقة العداد.
+    tick();
+    timerId=setInterval(tick,100);
+  }
+
+  function pauseTimer(){
+    if(timerId){
+      remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+      clearInterval(timerId);timerId=null;paused=true;running=false;deadline=0;
+      statusEl.textContent=tr('paused');
+    }
+  }
+
+  function resumeTimer(){
+    if(paused&&!timerId&&remaining>0){
+      paused=false;running=true;spokenSecond=null;
+      deadline=Date.now()+(remaining*1000);
+      statusEl.textContent=state.uiLang==='ar'?'تم الاستئناف':'Resumed';
+      tick();
+      timerId=setInterval(tick,100);
+    }
+  }
+  function stopTimer(){
+    clearInterval(timerId);timerId=null;running=false;paused=false;spokenSecond=null;
+    if('speechSynthesis'in window)speechSynthesis.cancel();remaining=state.duration;timerEl.textContent=fmt(remaining);statusEl.textContent=tr('stopped');
+    timerEl.classList.remove('urgent','go','player-hit');
+    $('playerDue').innerHTML='';
+  }
+
+  function updateRotationInfo(){
+    if(!state.teams.length){$('currentTeam').textContent='—';$('nextTeam').textContent='—';$('roundNo').textContent=rotationRound;return}
+    $('currentTeam').textContent=rotationActive?displayTeamName(state.teams[rotationIndex],rotationIndex):'—';
+    let n=(rotationIndex+1)%state.teams.length;$('nextTeam').textContent=rotationActive?displayTeamName(state.teams[n],n):'—';
+    $('roundNo').textContent=rotationRound;
+  }
+  function startRotation(){
+    if(!state.teams.length){showToast(tr('needTeams'));return}
+    rotationActive=true;rotationIndex=0;rotationRound=1;renderTeams();startTimer(state.rotationDuration);
+  }
+  function nextRotation(){
+    if(!rotationActive||!state.teams.length)return;
+    if(rotationIndex>=state.teams.length-1){
+      if(state.rotationMode==='once'){stopRotation();showToast(tr('rotationDone'));return}
+      rotationIndex=0;rotationRound++;
+    }else rotationIndex++;
+    renderTeams();startTimer(state.rotationDuration);
+  }
+  function stopRotation(){rotationActive=false;clearInterval(timerId);timerId=null;running=false;paused=false;remaining=state.duration;timerEl.textContent=fmt(remaining);statusEl.textContent=tr('stopped');renderTeams()}
+
+  $('uiLangBtn').addEventListener('click',()=>{state.uiLang=state.uiLang==='ar'?'en':'ar';save();applyLang()});
+  $('soundBtn').addEventListener('click',()=>{state.soundOn=!state.soundOn;if(!state.soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();save();applyLang()});
+  $('voiceEnabled').addEventListener('change',e=>{state.voiceEnabled=e.target.checked;save()});
+  $('voiceLang').addEventListener('change',e=>{
+    state.voiceLang=e.target.value;
+    selectedVoiceName=''; state.selectedVoiceName='';
+    save(); populateVoiceList();
+  });
+  $('deviceVoice').addEventListener('change',e=>{
+    selectedVoiceName=e.target.value; state.selectedVoiceName=e.target.value; save();
+  });
+  $('testVoiceBtn').addEventListener('click',()=>{
+    if('speechSynthesis' in window){ speechSynthesis.cancel(); speechToken++; }
+    setTimeout(()=>speak(
+      state.voiceLang.startsWith('ar')?'خمسة، أربعة، ثلاثة، اثنين، واحد، الآن':'Five, four, three, two, one, go',
+      state.voiceLang,1.22
+    ),80);
+  });
+  $('duration').addEventListener('change',e=>{state.duration=Math.max(5,Math.min(3600,Number(e.target.value)||30));e.target.value=state.duration;remaining=state.duration;timerEl.textContent=fmt(remaining);save()});
+  $('rotationDuration').addEventListener('change',e=>{state.rotationDuration=Math.max(5,Math.min(3600,Number(e.target.value)||30));e.target.value=state.rotationDuration;save()});
+  $('rotationMode').addEventListener('change',e=>{state.rotationMode=e.target.value;save()});
+    $('startBtn').addEventListener('click',()=>{
+    const autoStart=getAutoStartSecond();
+    if(autoStart!==null){
+      state.duration=autoStart;
+      $('duration').value=autoStart;
+    }else{
+      state.duration=Number($('duration').value)||30;
+    }
+    save();
+    startTimer(state.duration);
+  });
+  $('resumeBtn').addEventListener('click',resumeTimer);$('stopBtn').addEventListener('click',()=>{rotationActive=false;stopTimer();renderTeams()});
+  $('startRotationBtn').addEventListener('click',startRotation);$('stopRotationBtn').addEventListener('click',stopRotation);
+  $('addTeamBtn').addEventListener('click',addTeam);$('addPlayerBtn').addEventListener('click',addPlayer);
+  $('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')addPlayer()});
+  $('playerTeam').addEventListener('change',()=>updatePlayerCue(remaining));
+  $('rallyTeam').addEventListener('change',e=>{
+    state.rallyTeamId=Number(e.target.value);
+    save();
+    syncDurationToSelectedTeam();
+    updatePlayerCue(remaining);
+    const team=getActiveTeam();
+    const idx=team?state.teams.indexOf(team):-1;
+    if(team && !running) statusEl.textContent=tr('rallyFor')+' '+displayTeamName(team,idx);
+  });
+  $('resetBtn').addEventListener('click',()=>{if(confirm(tr('confirmReset'))){localStorage.removeItem(KEY);location.reload()}});
+  if('speechSynthesis'in window){
+    populateVoiceList();
+    speechSynthesis.onvoiceschanged=populateVoiceList;
+    setTimeout(populateVoiceList,250);
+  }
+
+  $('voiceEnabled').checked=state.voiceEnabled;$('voiceLang').value=state.voiceLang;
+  $('duration').value=state.duration;$('rotationDuration').value=state.rotationDuration;$('rotationMode').value=state.rotationMode;
+  remaining=state.duration;timerEl.textContent=fmt(remaining);applyLang();
+  renderRallyTeamSelect();
+  if($('rallyTeam').options.length){
+    const v=String(state.rallyTeamId||'');
+    if([...$('rallyTeam').options].some(o=>o.value===v)) $('rallyTeam').value=v;
+  }
+  syncDurationToSelectedTeam();
+})();
+</script>
+</body>
+</html>

@@ -237,7 +237,7 @@
 
 <script>
 (() => {
-  const KEY='rally_command_center_v3_collapsed_5_6';
+  const KEY='rally_command_center_v5_team2_empty';
   const defaultState={
     uiLang:'ar', soundOn:true, voiceEnabled:true, voiceLang:'ar-SA',
     duration:30, rotationDuration:30, rotationMode:'loop', rallyTeamId:1, collapsedTeams:[5,6],
@@ -263,7 +263,20 @@
     ]
   };
   let state=load();
-  let remaining=state.duration, timerId=null, paused=false, running=false;
+  // Force team 2 to start with three empty slots in this build.
+  {
+    const t2=state.teams.find(t=>Number(t.id)===2);
+    if(t2){
+      t2.captain=null;
+      t2.players=[
+        {id:201,name:'',time:''},
+        {id:202,name:'',time:''},
+        {id:203,name:'',time:''}
+      ];
+    }
+  }
+
+  let remaining=state.duration, preciseRemaining=Number(state.duration)||0, timerId=null, paused=false, running=false;
   let rotationActive=false, rotationIndex=0, rotationRound=0, spokenSecond=null;
 
   const $=id=>document.getElementById(id);
@@ -335,7 +348,15 @@
   function save(){localStorage.setItem(KEY,JSON.stringify(state))}
   function tr(k){return T[state.uiLang][k]||k}
   function showToast(msg){toast.textContent=msg;toast.style.display='block';clearTimeout(showToast.t);showToast.t=setTimeout(()=>toast.style.display='none',2200)}
-  function fmt(sec){sec=Math.max(0,Math.round(sec));return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0')}
+  function fmt(sec){
+    let v=Math.max(0,Number(sec)||0);
+    v=Math.ceil(v*10-1e-7)/10;
+    const whole=Math.floor(v);
+    const mins=Math.floor(whole/60);
+    const secs=whole%60;
+    const tenth=Math.round((v-whole)*10)%10;
+    return String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0')+'.'+tenth;
+  }
 
   function applyLang(){
     document.documentElement.lang=state.uiLang==='ar'?'ar':'en';
@@ -720,7 +741,8 @@
     $('duration').value=autoStart;
     if(!running && !paused){
       remaining=autoStart;
-      timerEl.textContent=fmt(remaining);
+      preciseRemaining=autoStart;
+      timerEl.textContent=fmt(preciseRemaining);
       updatePlayerCue(remaining);
     }
     save();
@@ -778,11 +800,13 @@
 
   function tick(){
     if(running && !paused && deadline){
-      remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+      preciseRemaining=Math.max(0,(deadline-Date.now())/1000);
+      remaining=Math.max(0,Math.ceil(preciseRemaining-1e-7));
     }
-    timerEl.textContent=fmt(remaining);
-    timerEl.classList.toggle('urgent',remaining<=10&&remaining>0);
-    timerEl.classList.toggle('go',remaining===0);
+
+    timerEl.textContent=fmt(preciseRemaining);
+    timerEl.classList.toggle('urgent',preciseRemaining<=10&&preciseRemaining>0);
+    timerEl.classList.toggle('go',preciseRemaining<=0);
     updatePlayerCue(remaining);
 
     if(remaining<=state.duration && remaining>=0 && spokenSecond!==remaining){
@@ -791,9 +815,10 @@
     }
 
     const stopAt=getAutoStopSecond();
-    if(remaining<=stopAt){
+    if(preciseRemaining<=stopAt){
+      preciseRemaining=stopAt;
       remaining=stopAt;
-      timerEl.textContent=fmt(remaining);
+      timerEl.textContent=fmt(preciseRemaining);
       clearInterval(timerId);timerId=null;running=false;deadline=0;
 
       const team=getActiveTeam();
@@ -804,7 +829,6 @@
             : `${displayTeamName(team,idx)} countdown ended at ${remaining}s`)
         : tr('started');
 
-      // نترك نطق آخر رقم يكتمل، لكن لا يستمر العد بعده.
       if(rotationActive)setTimeout(nextRotation,250);
     }
   }
@@ -814,8 +838,9 @@
     if('speechSynthesis'in window){ speechSynthesis.cancel(); speechToken++; }
 
     remaining=Math.max(1,Math.min(3600,Number(seconds)||30));
+    preciseRemaining=remaining;
     running=true;paused=false;spokenSecond=null;
-    deadline=Date.now()+(remaining*1000);
+    deadline=Date.now()+(preciseRemaining*1000);
 
     const activeTeam=getActiveTeam();
     const activeIndex=activeTeam?state.teams.indexOf(activeTeam):-1;
@@ -825,29 +850,31 @@
 
     // تحديث فوري لحظة الضغط، ثم تحديث سريع للحفاظ على دقة العداد.
     tick();
-    timerId=setInterval(tick,100);
+    timerId=setInterval(tick,50);
   }
 
   function pauseTimer(){
     if(timerId){
-      remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+      preciseRemaining=Math.max(0,(deadline-Date.now())/1000);
+      remaining=Math.max(0,Math.ceil(preciseRemaining-1e-7));
+      timerEl.textContent=fmt(preciseRemaining);
       clearInterval(timerId);timerId=null;paused=true;running=false;deadline=0;
       statusEl.textContent=tr('paused');
     }
   }
 
   function resumeTimer(){
-    if(paused&&!timerId&&remaining>0){
+    if(paused&&!timerId&&preciseRemaining>0){
       paused=false;running=true;spokenSecond=null;
-      deadline=Date.now()+(remaining*1000);
+      deadline=Date.now()+(preciseRemaining*1000);
       statusEl.textContent=state.uiLang==='ar'?'تم الاستئناف':'Resumed';
       tick();
-      timerId=setInterval(tick,100);
+      timerId=setInterval(tick,50);
     }
   }
   function stopTimer(){
     clearInterval(timerId);timerId=null;running=false;paused=false;spokenSecond=null;
-    if('speechSynthesis'in window)speechSynthesis.cancel();remaining=state.duration;timerEl.textContent=fmt(remaining);statusEl.textContent=tr('stopped');
+    if('speechSynthesis'in window)speechSynthesis.cancel();remaining=state.duration;preciseRemaining=Number(state.duration)||0;timerEl.textContent=fmt(preciseRemaining);statusEl.textContent=tr('stopped');
     timerEl.classList.remove('urgent','go','player-hit');
     $('playerDue').innerHTML='';
   }
@@ -870,7 +897,7 @@
     }else rotationIndex++;
     renderTeams();startTimer(state.rotationDuration);
   }
-  function stopRotation(){rotationActive=false;clearInterval(timerId);timerId=null;running=false;paused=false;remaining=state.duration;timerEl.textContent=fmt(remaining);statusEl.textContent=tr('stopped');renderTeams()}
+  function stopRotation(){rotationActive=false;clearInterval(timerId);timerId=null;running=false;paused=false;remaining=state.duration;preciseRemaining=Number(state.duration)||0;timerEl.textContent=fmt(preciseRemaining);statusEl.textContent=tr('stopped');renderTeams()}
 
   $('uiLangBtn').addEventListener('click',()=>{state.uiLang=state.uiLang==='ar'?'en':'ar';save();applyLang()});
   $('soundBtn').addEventListener('click',()=>{state.soundOn=!state.soundOn;if(!state.soundOn&&'speechSynthesis'in window)speechSynthesis.cancel();save();applyLang()});
@@ -890,7 +917,7 @@
       state.voiceLang,1.22
     ),80);
   });
-  $('duration').addEventListener('change',e=>{state.duration=Math.max(5,Math.min(3600,Number(e.target.value)||30));e.target.value=state.duration;remaining=state.duration;timerEl.textContent=fmt(remaining);save()});
+  $('duration').addEventListener('change',e=>{state.duration=Math.max(5,Math.min(3600,Number(e.target.value)||30));e.target.value=state.duration;remaining=state.duration;preciseRemaining=Number(state.duration)||0;timerEl.textContent=fmt(preciseRemaining);save()});
   $('rotationDuration').addEventListener('change',e=>{state.rotationDuration=Math.max(5,Math.min(3600,Number(e.target.value)||30));e.target.value=state.rotationDuration;save()});
   $('rotationMode').addEventListener('change',e=>{state.rotationMode=e.target.value;save()});
     $('startBtn').addEventListener('click',()=>{
@@ -927,7 +954,7 @@
 
   $('voiceEnabled').checked=state.voiceEnabled;$('voiceLang').value=state.voiceLang;
   $('duration').value=state.duration;$('rotationDuration').value=state.rotationDuration;$('rotationMode').value=state.rotationMode;
-  remaining=state.duration;timerEl.textContent=fmt(remaining);applyLang();
+  remaining=state.duration;preciseRemaining=Number(state.duration)||0;timerEl.textContent=fmt(preciseRemaining);applyLang();
   renderRallyTeamSelect();
   if($('rallyTeam').options.length){
     const v=String(state.rallyTeamId||'');

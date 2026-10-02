@@ -108,10 +108,127 @@
   .team-gap-info .gap-title{font-weight:800;margin-bottom:3px}
   .team-gap-info .gap-row{display:flex;justify-content:space-between;gap:10px;align-items:center}
   .team-gap-info .gap-row span:last-child{font-variant-numeric:tabular-nums;font-weight:800}
+
+  .page-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .page-nav .active{outline:2px solid #5ca8ff}
+  .fort-page{display:none}
+  .fort-page.active{display:block}
+  .main-page.hidden{display:none}
+  .fort-grid{display:grid;grid-template-columns:minmax(300px,430px) 1fr;gap:14px}
+  .fort-card{background:#101a2b;border:1px solid #263653;border-radius:16px;padding:16px}
+  .fort-card h2,.fort-card h3{margin-top:0}
+  .fort-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fort-fields .full{grid-column:1/-1}
+  .fort-fields input,.fort-fields select{width:100%;box-sizing:border-box}
+  .fort-big{
+    text-align:center;font-variant-numeric:tabular-nums;font-weight:900;
+    font-size:clamp(34px,7vw,72px);letter-spacing:1px;margin:12px 0
+  }
+  .fort-phase{text-align:center;font-size:18px;font-weight:800;margin-bottom:8px}
+  .fort-result{display:grid;gap:8px;margin-top:12px}
+  .fort-row{display:flex;justify-content:space-between;gap:14px;align-items:center;
+    padding:10px 12px;border:1px solid #263653;border-radius:11px;background:#0a1220}
+  .fort-row b{font-variant-numeric:tabular-nums;direction:ltr}
+  .fort-highlight{border-color:#4c8dd9!important}
+  .fort-note{font-size:13px;line-height:1.7;opacity:.78;margin-top:10px}
+  .fort-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  @media(max-width:820px){.fort-grid{grid-template-columns:1fr}.fort-fields{grid-template-columns:1fr}}
+
+
+  .fort-big.open-now{
+    color:#ff3b3b!important;
+    text-shadow:0 0 18px rgba(255,59,59,.45);
+    animation:fortPulse .65s ease-in-out infinite alternate;
+  }
+  .fort-phase.open-now{color:#ff3b3b!important}
+  @keyframes fortPulse{from{opacity:1}to{opacity:.55}}
+  .fort-rallies{display:grid;gap:10px;margin-top:12px}
+  .fort-rally-card{border:1px solid #263653;border-radius:13px;padding:12px;background:#0a1220}
+  .fort-rally-card.open-now{border-color:#ff3b3b;box-shadow:0 0 0 1px rgba(255,59,59,.25)}
+  .fort-rally-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
+  .fort-rally-title{font-weight:900}
+  .fort-mini-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .fort-mini-grid label{font-size:12px;opacity:.8}
+  .fort-mini-grid input,.fort-mini-grid select{width:100%;box-sizing:border-box}
+  .fort-rally-times{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:9px;font-size:12px}
+  .fort-rally-times div{padding:7px;border:1px solid #263653;border-radius:8px;text-align:center}
+  .fort-rally-times b{display:block;margin-top:3px;direction:ltr;font-size:14px}
+  .fort-rally-count{font-size:26px;font-weight:900;text-align:center;margin-top:8px;font-variant-numeric:tabular-nums}
+  .fort-rally-count.open-now{color:#ff3b3b}
+  @media(max-width:620px){.fort-mini-grid,.fort-rally-times{grid-template-columns:1fr}}
+
+
+  .utc-clock-box{
+    border:1px solid #263653;border-radius:14px;padding:12px 16px;margin-bottom:12px;
+    background:#0a1220;text-align:center
+  }
+  .utc-clock-label{font-size:13px;opacity:.72;margin-bottom:3px}
+  .utc-clock{font-size:clamp(28px,6vw,48px);font-weight:900;direction:ltr;
+    font-variant-numeric:tabular-nums;letter-spacing:1px}
+
+
+  .fortress-list{display:grid;gap:14px;margin-top:14px}
+  .fortress-card{background:#101a2b;border:1px solid #263653;border-radius:16px;padding:14px}
+  .fortress-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+  .fortress-name{font-size:20px;font-weight:900}
+  .fortress-time{font-size:20px;font-weight:900;direction:ltr}
+  .fixed-rallies{display:grid;gap:8px}
+  .fixed-rally{display:grid;grid-template-columns:1.25fr .8fr .8fr 1fr;gap:8px;align-items:end;
+    border:1px solid #263653;border-radius:11px;padding:9px;background:#0a1220}
+  .fixed-rally label{font-size:11px;opacity:.75;display:block;margin-bottom:3px}
+  .fixed-rally input,.fixed-rally select{width:100%;box-sizing:border-box}
+  .fixed-rally .calc{font-size:12px;line-height:1.5;text-align:center}
+  .fixed-rally .calc b{display:block;font-size:15px;direction:ltr}
+  .fixed-rally.open-now{border-color:#ff3b3b;box-shadow:0 0 0 1px rgba(255,59,59,.3)}
+  .fixed-rally.open-now .calc{color:#ff3b3b;font-weight:900}
+  @media(max-width:760px){.fixed-rally{grid-template-columns:1fr 1fr}.fixed-rally .calc{grid-column:1/-1}}
+
+
+  .game-sync-box{display:flex;gap:10px;align-items:end;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  .game-sync-box .field{min-width:210px;max-width:280px}
+  .game-clock-label{font-size:13px;opacity:.72;margin-top:8px}
+  .game-clock{font-size:clamp(24px,5vw,40px);font-weight:900;direction:ltr;font-variant-numeric:tabular-nums}
+
+
+  .fortress-edit{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:10px}
+  .fortress-edit .field{flex:1;min-width:140px}
+  .fortress-edit input{width:100%;box-sizing:border-box}
+  .rr-count{display:block;margin-top:5px;font-size:22px;font-weight:900;
+    font-variant-numeric:tabular-nums;direction:ltr}
+  .rr-count.send-now{color:#ff3b3b!important;text-shadow:0 0 14px rgba(255,59,59,.45)}
+
+
+  .fortress-toggle{
+    min-width:44px;height:44px;border-radius:10px;font-size:24px;font-weight:900;
+    display:inline-flex;align-items:center;justify-content:center
+  }
+  .fortress-card.collapsed{padding:10px 14px}
+  .fortress-card.collapsed .fortress-edit,
+  .fortress-card.collapsed .fixed-rallies{display:none!important}
+  .fortress-card.collapsed .fortress-head{margin-bottom:0}
+
+
+.rr-lights{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:8px;direction:ltr}
+.rr-light{height:10px;border-radius:999px;background:#263653;transition:background .08s,box-shadow .08s,opacity .08s}
+.rr-lights.green .rr-light{background:#28b463;box-shadow:0 0 5px rgba(40,180,99,.25)}
+.rr-lights.yellow .rr-light{background:#f1c40f;box-shadow:0 0 6px rgba(241,196,15,.3)}
+.rr-lights.red .rr-light{background:#3b2020;opacity:.55}
+.rr-lights.red .rr-light.on{background:#ff3030;opacity:1;box-shadow:0 0 10px rgba(255,48,48,.85)}
+
+
+.rr-march-parts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rr-march-parts label{font-size:11px;opacity:.78;margin-bottom:3px}
+.rr-march-parts input{width:100%}
 </style>
 </head>
 <body>
 <div class="app">
+  <div class="page-nav">
+    <button class="btn active" id="mainPageBtn">حشود الكتائب</button>
+    <button class="btn" id="fortPageBtn">حشود الحصون والمنشآت</button>
+  </div>
+  <div id="mainPage" class="main-page">
+
   <header class="topbar">
     <div class="brand">
       <h1 id="title">مركز قيادة الحشود</h1>
@@ -233,7 +350,33 @@
     </main>
   </div>
 </div>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="toast" class="toast" role="status" aria-live="polite">
+  </div>
+
+  <section id="fortPage" class="fort-page" dir="rtl">
+    <div class="utc-clock-box">
+      <div class="game-clock-label">توقيت اللعبة</div>
+      <div id="gameLiveClock" class="utc-clock">00:00:00.0</div>
+      <div class="game-sync-box">
+        <div class="field">
+          <label for="gameDelay">ضبط إضافي لتوقيت اللعبة (ثانية)</label>
+          <input id="gameDelay" type="number" min="0" max="5" step="0.1" value="0.0">
+        </div>
+      </div>
+      <div class="fort-note">إذا كان التوقيت الظاهر متأخرًا، ارفع القيمة مثل 0.1 أو 0.2 أو 0.4 ثانية حتى يطابق توقيت اللعبة تمامًا. جميع حسابات الحشود تتبع هذا التوقيت.</div>
+    </div>
+
+    <div class="fort-card">
+      <h2>حشود الحصون والمنشآت</h2>
+      <div class="fort-note">
+        لكل حصن أو قلعة 4 حشود. اكتب اسم صاحب الحشد ومدة مسيرته، واختر مدة الحشد. الحسبة تستهدف الوصول قبل الإغلاق بـ 0.1 ثانية.
+      </div>
+    </div>
+
+    <div id="fortressList" class="fortress-list"></div>
+</section>
+
+</div>
 
 <script>
 (() => {
@@ -935,6 +1078,246 @@
   }
   syncDurationToSelectedTeam();
 })();
+
+
+
+  // ===== صفحة الحصون المجدولة - 4 حشود لكل حصن =====
+  const mainPage=document.getElementById('mainPage');
+  const fortPage=document.getElementById('fortPage');
+  const mainPageBtn=document.getElementById('mainPageBtn');
+  const fortPageBtn=document.getElementById('fortPageBtn');
+  function showRallyPage(which){
+    const fort=which==='fort';
+    mainPage.classList.toggle('hidden',fort);
+    fortPage.classList.toggle('active',fort);
+    mainPageBtn.classList.toggle('active',!fort);
+    fortPageBtn.classList.toggle('active',fort);
+  }
+  mainPageBtn.addEventListener('click',()=>showRallyPage('main'));
+  fortPageBtn.addEventListener('click',()=>showRallyPage('fort'));
+
+  const fc=id=>document.getElementById(id);
+  const MAKKAH_OFFSET=3*60*60*1000;
+  const FORT_KEY='fortress_schedule_4_rallies_close_time_v4';
+  const GAME_DELAY_KEY='fortress_game_clock_delay_v3_ready_03';
+  const savedGameAdvance=localStorage.getItem(GAME_DELAY_KEY);
+  let gameDelaySec=savedGameAdvance===null ? 0.3 : Math.max(0,Number(savedGameAdvance)||0);
+
+  // Default closing times; each can be edited manually.
+  const fortressDefs=[
+    {id:'castle5',name:'القلعة رقم 5',open:'08:00'},
+    {id:'fort2',name:'الحصن رقم 2',open:'09:00'},
+    {id:'fort3',name:'الحصن رقم 3',open:'09:00'},
+    {id:'castle8',name:'القلعة رقم 8',open:'09:00'},
+    {id:'fort4',name:'الحصن رقم 4',open:'12:00'},
+    {id:'castle6',name:'القلعة رقم 6',open:'12:00'}
+  ];
+
+  function fp(n,w=2){return String(n).padStart(w,'0')}
+  function makkahClock(ms){
+    const d=new Date(ms+MAKKAH_OFFSET);
+    return fp(d.getUTCHours())+':'+fp(d.getUTCMinutes())+':'+fp(d.getUTCSeconds())+'.'+Math.floor(d.getUTCMilliseconds()/100);
+  }
+  function makkahTodayAt(hhmm){
+    const [h,m]=hhmm.split(':').map(Number);
+    const n=new Date(Date.now()+MAKKAH_OFFSET);
+    // Positive calibration advances the program's game clock.
+    // Therefore a displayed game target occurs earlier in real time by the calibration amount.
+    return Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate(),h-3,m,0,0)+1000-(gameDelaySec*1000);
+  }
+  function loadFortData(){
+    try{return JSON.parse(localStorage.getItem(FORT_KEY))||{}}catch(e){return{}}
+  }
+  let fortData=loadFortData();
+  function saveFortData(){localStorage.setItem(FORT_KEY,JSON.stringify(fortData))}
+  function ensureData(){
+    fortressDefs.forEach(f=>{
+      if(!fortData[f.id]) fortData[f.id]={name:f.name,open:f.open,collapsed:true,rallies:Array.from({length:4},()=>({name:'',march:'',duration:'300'}))};
+      if(!fortData[f.id].name)fortData[f.id].name=f.name;
+      if(!fortData[f.id].open)fortData[f.id].open=f.open;
+      if(typeof fortData[f.id].collapsed!=='boolean')fortData[f.id].collapsed=true;
+      while(fortData[f.id].rallies.length<4)fortData[f.id].rallies.push({name:'',march:'',duration:'300'});
+      fortData[f.id].rallies=fortData[f.id].rallies.slice(0,4);
+    });
+    saveFortData();
+  }
+  ensureData();
+
+  function buildFortresses(){
+    const host=fc('fortressList');host.innerHTML='';
+    fortressDefs.forEach(f=>{
+      const card=document.createElement('div');card.className='fortress-card';card.dataset.fort=f.id;
+      const meta=fortData[f.id];
+      if(meta.collapsed)card.classList.add('collapsed');
+      card.innerHTML=`<div class="fortress-head">
+        <button type="button" class="btn fortress-toggle" aria-label="فتح أو تصغير">${meta.collapsed?'+':'−'}</button>
+        <div class="fortress-name fortress-name-display">${meta.name}</div>
+        <div class="fortress-time fortress-time-display">${meta.open}</div>
+      </div>
+      <div class="fortress-edit">
+        <div class="field"><label>اسم / رقم القلعة أو الحصن</label><input class="fort-name-edit" value="${String(meta.name).replace(/"/g,'&quot;')}"></div>
+        <div class="field"><label>وقت إغلاق القلعة / الحصن</label><input class="fort-time-edit" type="time" step="60" value="${meta.open}"></div>
+      </div>
+      <div class="fixed-rallies"></div>`;
+      const nameEdit=card.querySelector('.fort-name-edit');
+      const timeEdit=card.querySelector('.fort-time-edit');
+      const toggleBtn=card.querySelector('.fortress-toggle');
+      toggleBtn.addEventListener('click',()=>{
+        meta.collapsed=!meta.collapsed;
+        card.classList.toggle('collapsed',meta.collapsed);
+        toggleBtn.textContent=meta.collapsed?'+':'−';
+        saveFortData();
+      });
+      const updateMeta=()=>{
+        meta.name=nameEdit.value.trim()||f.name;
+        meta.open=timeEdit.value||f.open;
+        card.querySelector('.fortress-name-display').textContent=meta.name;
+        card.querySelector('.fortress-time-display').textContent=meta.open;
+        saveFortData();updateFortTimes();
+      };
+      nameEdit.addEventListener('input',updateMeta);
+      timeEdit.addEventListener('input',updateMeta);
+      const list=card.querySelector('.fixed-rallies');
+      fortData[f.id].rallies.forEach((r,i)=>{
+        const row=document.createElement('div');row.className='fixed-rally';row.dataset.idx=i;
+        row.innerHTML=`
+          <div><label>اسم الحشد ${i+1}</label><input class="rr-name" value="${String(r.name||'').replace(/"/g,'&quot;')}" placeholder="الاسم"></div>
+          <div><label>مدة المسيرة</label><div class="rr-march-parts">
+  <div><label>دقيقة</label><input class="rr-march-min" type="number" min="0" step="1" value="${r.march!==''?Math.floor(Number(r.march)/60):''}" placeholder="0"></div>
+  <div><label>ثانية</label><input class="rr-march-sec" type="number" min="0" max="59.9" step="0.1" value="${r.march!==''?(Number(r.march)%60).toFixed(1).replace(/\.0$/,''):''}" placeholder="0"></div>
+</div><input class="rr-march" type="hidden" value="${r.march||''}"></div>
+          <div><label>مدة الحشد</label><select class="rr-duration">
+            <option value="60" ${r.duration==='60'?'selected':''}>1 دقيقة</option>
+            <option value="300" ${r.duration!=='60'?'selected':''}>5 دقائق</option>
+          </select></div>
+          <div class="calc">وقت فتح الحشد<b class="rr-open">--:--:--.-</b><span class="rr-count">--.-</span><span class="rr-status"></span><div class="rr-lights green" aria-label="مؤشر أجزاء الثانية"><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span><span class="rr-light"></span></div></div>`;
+        const update=()=>{
+          const obj=fortData[f.id].rallies[i];
+          obj.name=row.querySelector('.rr-name').value;
+          const minEl=row.querySelector('.rr-march-min');
+          const secEl=row.querySelector('.rr-march-sec');
+          let mins=Math.max(0,parseInt(minEl.value||'0',10)||0);
+          let secs=Math.max(0,parseFloat(secEl.value||'0')||0);
+          if(secs>=60){
+            mins+=Math.floor(secs/60);
+            secs=secs%60;
+            minEl.value=mins;
+            secEl.value=secs.toFixed(1).replace(/\.0$/,'');
+          }
+          obj.march=(mins*60+secs).toFixed(1).replace(/\.0$/,'');
+          row.querySelector('.rr-march').value=obj.march;
+          obj.duration=row.querySelector('.rr-duration').value;
+          saveFortData(); updateFortTimes();
+        };
+        row.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',update));
+        row.querySelector('select').addEventListener('change',update);
+        list.appendChild(row);
+      });
+      host.appendChild(card);
+    });
+    updateFortTimes();
+  }
+
+  function getCloseTime(f){
+    // The editable time is the fortress/castle CLOSING time itself.
+    const closeTime=(fortData[f.id]&&fortData[f.id].open)||f.open;
+    return makkahTodayAt(closeTime);
+  }
+  function updateFortTimes(){
+    const now=Date.now();
+    fortressDefs.forEach(f=>{
+      const card=document.querySelector(`[data-fort="${f.id}"]`);
+      if(!card)return;
+      const close=getCloseTime(f);
+      card.querySelectorAll('.fixed-rally').forEach((row,i)=>{
+        const r=fortData[f.id].rallies[i];
+        const march=Number(r.march);
+        const openNode=row.querySelector('.rr-open');
+        const countNode=row.querySelector('.rr-count');
+        const status=row.querySelector('.rr-status');
+        const lights=row.querySelector('.rr-lights');
+        row.classList.remove('open-now');countNode.classList.remove('send-now');
+        if(r.march===''||!Number.isFinite(march)||march<0){
+          openNode.textContent='--:--:--.-';countNode.textContent='--.-';status.textContent='';return;
+        }
+        const duration=Number(r.duration)||300;
+        const arrival=close-100; // 0.1 sec before fortress closes
+        const depart=arrival-march*1000;
+        const rallyOpen=depart-duration*1000;
+        openNode.textContent=makkahClock(rallyOpen);
+        if(lights){
+          const bulbs=[...lights.querySelectorAll('.rr-light')];
+          bulbs.forEach(x=>x.classList.remove('on'));
+          const until=rallyOpen-now;
+          lights.classList.remove('green','yellow','red');
+          if(until>5000){
+            lights.classList.add('green');
+          }else if(until>1000){
+            lights.classList.add('yellow');
+          }else if(until>0){
+            lights.classList.add('red');
+            const elapsed=1000-until;
+            const lit=Math.min(10,Math.max(1,Math.floor(elapsed/100)+1));
+            bulbs.forEach((x,j)=>x.classList.toggle('on',j<lit));
+          }else if(now<depart){
+            lights.classList.add('red');
+            bulbs.forEach(x=>x.classList.add('on'));
+          }else{
+            lights.classList.add('green');
+          }
+        }
+
+        const diff=rallyOpen-now;
+        if(diff>0){
+          countNode.textContent=(diff/1000).toFixed(1);
+          status.textContent=' ث';
+        }else if(now>=rallyOpen && now<rallyOpen+1000){
+          // Exact send/open second: countdown number itself becomes red.
+          countNode.textContent='0.0';
+          countNode.classList.add('send-now');
+          row.classList.add('open-now');
+          status.textContent=' — افتح الحشد الآن';
+        }else if(now<depart){
+          countNode.textContent='0.0';
+          countNode.classList.add('send-now');
+          row.classList.add('open-now');
+          status.textContent=' — افتح الحشد الآن';
+        }else if(now<arrival){
+          countNode.textContent='انطلق';
+          status.textContent='';
+        }else if(now<close){
+          countNode.textContent='وصل';
+          status.textContent='';
+        }else{
+          countNode.textContent='انتهى';
+          status.textContent='';
+        }
+      });
+    });
+  }
+
+  function updateMakkahLiveClock(){
+    const gd=new Date(Date.now()+MAKKAH_OFFSET-1000+(gameDelaySec*1000));
+    const gnode=fc('gameLiveClock');
+    if(gnode)gnode.textContent=fp(gd.getUTCHours())+':'+fp(gd.getUTCMinutes())+':'+fp(gd.getUTCSeconds())+'.'+Math.floor(gd.getUTCMilliseconds()/100);
+  }
+
+  const delayInput=fc('gameDelay');
+  if(delayInput){
+    delayInput.value=gameDelaySec.toFixed(1);
+    delayInput.addEventListener('input',()=>{
+      gameDelaySec=Math.max(0,Number(delayInput.value)||0);
+      localStorage.setItem(GAME_DELAY_KEY,String(gameDelaySec));
+      updateMakkahLiveClock();
+      updateFortTimes();
+    });
+  }
+
+  buildFortresses();
+  updateMakkahLiveClock();
+  setInterval(updateMakkahLiveClock,50);
+  setInterval(updateFortTimes,100);
+
 </script>
 </body>
 </html>
